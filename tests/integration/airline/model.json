@@ -1,0 +1,87 @@
+{
+  "_source": "Airline Reservations Data Model — Barry Williams, DataBaseAnswers.org (2008)",
+  "entities": {
+    "BookingAgent": {
+      "table": "booking_agents", "pk": "agent_id",
+      "columns": {"agent_name": "agent_name", "agent_details": "agent_details"}
+    },
+    "Passenger": {
+      "table": "passengers", "pk": "passenger_id",
+      "columns": {
+        "first_name": "first_name", "second_name": "second_name", "last_name": "last_name",
+        "phone_number": "phone_number", "email_address": "email_address",
+        "address_lines": "address_lines", "city": "city",
+        "state_province_county": "state_province_county", "country": "country",
+        "other_passenger_details": "other_passenger_details"
+      }
+    },
+    "ItineraryReservation": {
+      "table": "itinerary_reservations", "pk": "reservation_id",
+      "columns": {
+        "agent_id": "agent_id", "passenger_id": "passenger_id",
+        "reservation_status_code": "reservation_status_code",
+        "ticket_type_code": "ticket_type_code", "travel_class_code": "travel_class_code",
+        "date_reservation_made": "date_reservation_made", "number_in_party": "number_in_party"
+      }
+    },
+    "Payment": {
+      "table": "payments", "pk": "payment_id",
+      "columns": {
+        "payment_status_code": "payment_status_code", "payment_date": "payment_date",
+        "payment_amount": "payment_amount"
+      }
+    },
+    "ReservationPayment": {
+      "table": "reservation_payments", "pk": ["reservation_id", "payment_id"],
+      "columns": {}
+    },
+    "Airport": {
+      "table": "airports", "pk": "airport_code", "pk_type": "VARCHAR2(10)",
+      "columns": {"airport_name": "airport_name", "airport_location": "airport_location",
+                  "other_details": "other_details"}
+    },
+    "FlightSchedule": {
+      "table": "flight_schedules", "pk": "flight_number", "pk_type": "VARCHAR2(20)",
+      "columns": {
+        "airline_code": "airline_code", "usual_aircraft_type_code": "usual_aircraft_type_code",
+        "origin_airport_code": "origin_airport_code",
+        "destination_airport_code": "destination_airport_code",
+        "departure_date_time": "departure_date_time", "arrival_date_time": "arrival_date_time"
+      }
+    },
+    "Leg": {
+      "table": "legs", "pk": "leg_id",
+      "columns": {
+        "flight_number": "flight_number", "origin_airport_code": "origin_airport_code",
+        "destination_airport_code": "destination_airport_code",
+        "actual_departure_time": "actual_departure_time", "actual_arrival_time": "actual_arrival_time"
+      }
+    },
+    "ItineraryLeg": {
+      "table": "itinerary_legs", "pk": ["reservation_id", "leg_id"], "columns": {}
+    },
+    "RefCalendar": {
+      "table": "ref_calendar", "pk": "day_date", "pk_type": "DATE",
+      "columns": {"day_number": "day_number", "business_day_yn": "business_day_yn"}
+    },
+    "FlightCost": {
+      "table": "flight_costs",
+      "pk": ["flight_number", "aircraft_type_code", "valid_from_date"],
+      "column_types": {"flight_number": "VARCHAR2(20)", "aircraft_type_code": "VARCHAR2(20)",
+                       "valid_from_date": "DATE", "valid_to_date": "DATE"},
+      "columns": {"valid_to_date": "valid_to_date", "flight_cost": "flight_cost"}
+    }
+  },
+  "relationships": [
+    {"from": "BookingAgent", "to": "ItineraryReservation", "from_key": "agent_id", "to_key": "agent_id", "cardinality": "1:N"},
+    {"from": "Passenger", "to": "ItineraryReservation", "from_key": "passenger_id", "to_key": "passenger_id", "cardinality": "1:N"},
+    {"from": "ItineraryReservation", "to": "ReservationPayment", "from_key": "reservation_id", "to_key": "reservation_id", "cardinality": "1:N"},
+    {"from": "Payment", "to": "ReservationPayment", "from_key": "payment_id", "to_key": "payment_id", "cardinality": "1:N"},
+    {"from": "ItineraryReservation", "to": "ItineraryLeg", "from_key": "reservation_id", "to_key": "reservation_id", "cardinality": "1:N"},
+    {"from": "Leg", "to": "ItineraryLeg", "from_key": "leg_id", "to_key": "leg_id", "cardinality": "1:N"},
+    {"from": "Airport", "to": "FlightSchedule", "from_key": "airport_code", "to_key": "origin_airport_code", "cardinality": "1:N"},
+    {"from": "FlightSchedule", "to": "Leg", "from_key": "flight_number", "to_key": "flight_number", "cardinality": "1:N"},
+    {"from": "FlightSchedule", "to": "FlightCost", "from_key": "flight_number", "to_key": "flight_number", "cardinality": "1:N"}
+  ],
+  "projections": {}
+}

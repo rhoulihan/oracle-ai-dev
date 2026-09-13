@@ -1,0 +1,19 @@
+# Copyright (c) 2026 Oracle and/or its affiliates.
+# Profile: db — Oracle AI Database 26ai Free, standalone.
+services:
+  db:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-ai-dev-db
+    ports: ["${DB_HOST_PORT:-1521}:1521"]
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD:-devpassword}
+    volumes:
+      - oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/checkDBStatus.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 300s
+volumes:
+  oradata:

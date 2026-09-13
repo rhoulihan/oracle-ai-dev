@@ -1,0 +1,17 @@
+{
+  "name": "oracle-ai-dev",
+  "version": "0.6.0",
+  "description": "Guided zero-to-app development on Oracle AI Database 26ai Free, bundling Oracle SQLcl's MCP server.",
+  "skills": "./skills/",
+  "mcpServers": {
+    "sqlcl": {
+      "command": "bash",
+      "args": ["./scripts/sqlcl-mcp.sh", "-mcp", "-R", "4"],
+      "cwd": ".",
+      "env_vars": ["JAVA_HOME", "TNS_ADMIN", "SQLCL_PATH"],
+      "startup_timeout_sec": 60,
+      "tool_timeout_sec": 120
+    }
+  },
+  "hooks": {}
+}

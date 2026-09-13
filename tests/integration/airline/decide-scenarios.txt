@@ -1,0 +1,20 @@
+decide_model — the cost matrix fuels the decision (measured cells, logical reads)
+
+A — reads only (single-anchor aggregate reads)
+  CHOSEN: document
+  ranked: [('document', 3000), ('single_table', 3100), ('relational', 3300)]
+  top driver: point_read (read), cost 2700
+
+B — aggregations + writes (KPI/reporting)
+  CHOSEN: relational
+  ranked: [('relational', 17700), ('single_table', 18300)]
+  top driver: aggregation (read), cost 12000
+
+C — multi-anchor co-retrieval + writes
+  CHOSEN: single_table
+  ranked: [('single_table', 6400), ('relational', 7800), ('document', 12900)]
+  top driver: write_multianchor (write), cost 3600
+
+Same engine, same cells — the workload's read/write mix elects a different design
+each time. Writes are first-class rows; when a datum is duplicated across N
+documents (scenario C), the write row costs Nx and tips the decision to single-table.

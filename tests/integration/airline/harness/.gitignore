@@ -1,0 +1,10 @@
+node_modules/
+package-lock.json
+java/target/
+java/lib/
+go/harness
+go/go.sum
+dotnet/bin/
+dotnet/obj/
+repository.py
+repository.js

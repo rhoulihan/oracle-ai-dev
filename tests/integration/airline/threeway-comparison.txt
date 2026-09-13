@@ -1,0 +1,22 @@
+Three-way head-to-head — WITH sparse single-table indexes (measured live on 26ai)
+
+  metric                     single_table  relational  document
+  read (logical reads)                  3           3         3
+  write (redo bytes)                 1805        1440      1631
+    (single-table before)            3084
+
+Sparse type-filtered indexes + auto-partition-by-type cut the single-table write
+from 3084 to 1805 redo (~41%) and its read to 3 logical reads (partition prune +
+sparse index range scan). Reads are now IDENTICAL across all three shapes; writes
+are close — relational 1440 < document 1631 < single-table 1805 (within ~25%).
+
+  passenger_assignments  winner(measured) = relational   candidates = ['document', 'relational', 'single_table', 'sql_view']
+  add_seat               winner(measured) = relational   candidates = ['document', 'relational', 'single_table', 'sql_view']
+
+  Union (read-heavy, occasional writes): relational
+  ranked: ['relational', 'document', 'single_table']
+
+With reads tied, the small write edge decides: relational still wins this mix, but
+single-table is now genuinely competitive (was ~2.4x the write cost, now ~1.25x).
+For a read-dominated workload with many diverse access patterns, single-table's
+co-location would carry it. Measured, per workload.

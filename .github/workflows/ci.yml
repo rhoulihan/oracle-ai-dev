@@ -1,0 +1,14 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  tier1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: pytest -q
+      - run: shellcheck assets/tooling/configure/*.sh assets/verify/*.sh scripts/*.sh

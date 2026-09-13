@@ -1,0 +1,11 @@
+{
+  "entities": {
+    "Customer": {"table": "customers", "pk": "customer_id", "columns": {"name": "name"}},
+    "Order": {"table": "orders", "pk": "order_id",
+              "columns": {"customerId": "customer_id", "total": "total", "custName": "cust_name"}}
+  },
+  "relationships": [
+    {"from": "Customer", "to": "Order", "from_key": "customer_id", "to_key": "customer_id", "cardinality": "1:N"}
+  ],
+  "projections": {"document": {"Order": {"collection": "order_docs", "id_path": "$._id"}}}
+}

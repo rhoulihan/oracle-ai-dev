@@ -1,0 +1,81 @@
+name: live
+# The live tier boots real 26ai Free containers (db + ORDS) and runs every
+# ORACLE_AI_DEV_LIVE-gated test — the 36 tests the fast tier skips by design.
+# Nightly + on demand: image pulls are anonymous but heavyweight (~5 GB).
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write        # the outcome notification is an issue comment (below)
+
+jobs:
+  live-tier:
+    runs-on: ubuntu-latest
+    # 2026-08-09: a slow-infrastructure morning stretched pass 1 alone to
+    # 59 minutes (normal full run: 21-27m); at 60 the ceiling killed pass 2
+    # before it ran a test. Headroom for both passes on a bad morning.
+    timeout-minutes: 120
+    steps:
+      # The tier pulls ~6 GB of images and builds several Oracle data volumes;
+      # a stock runner runs out of disk right at the LAST image pull (mongo:7
+      # for the CRUD round-trip died with 'no space left on device'). Reclaim
+      # the ~25 GB of preinstalled toolchains the tier never uses.
+      - name: Free runner disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune -af || true
+          df -h /
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      # The LIVE tier drives the database from the host (optimizer, plancheck,
+      # etag round-trip, Mongo-API validation) and needs the drivers;
+      # requirements-dev stays stdlib-only on purpose so the offline tier
+      # proves the generation paths need no dependencies. Every nightly since
+      # this workflow existed failed on the missing oracledb, and the
+      # stack-validation Mongo test silently skipped without pymongo.
+      - run: pip install oracledb pymongo
+      - name: Warm the ONNX model cache (best-effort; test degrades honestly)
+        run: bash assets/tooling/configure/setup-embedding-model.sh --download-only || true
+      # TWO SERIALIZED PASSES, one shared container name. The compose files
+      # pin container_name: oracle-ai-dev-db, so only one stack can exist at
+      # a time. Self-managing tests each boot and tear down their own compose
+      # project; modules on the session live_container fixture share ONE
+      # stack for their whole pass. Interleaving them was green only by
+      # alphabetical accident until test_live_hybrid_partition.py (h < i)
+      # booted the session stack early, held the name, and ten later
+      # `compose up`s died on a name Conflict (nightlies 2026-08-01/02).
+      # The shared_container marker is the explicit contract, lint-enforced.
+      - name: Live tier — self-managed stacks
+        run: ORACLE_AI_DEV_LIVE=1 pytest -m "live and not shared_container" -q -rxXs --durations=10
+      - name: Live tier — shared-container pass
+        run: ORACLE_AI_DEV_LIVE=1 pytest -m "live and shared_container" -q -rxXs --durations=10
+      - name: Container logs on failure
+        if: failure()
+        run: docker ps -a && for c in $(docker ps -aq); do echo "=== $c"; docker logs --tail 50 $c || true; done
+      # GitHub only emails on FAILURE by default, so a green nightly is
+      # indistinguishable from a nightly that never ran. Comment the outcome —
+      # success and failure both — on a rolling status issue; issue comments
+      # notify watchers through normal GitHub notifications, no secrets needed.
+      - name: Notify outcome (success and failure)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          status="${{ job.status }}"
+          icon="❌"; [ "$status" = "success" ] && icon="✅"
+          title="Nightly live tier status"
+          num=$(gh issue list --state open --search "in:title \"$title\"" --json number -q '.[0].number' || true)
+          if [ -z "$num" ]; then
+            num=$(gh issue create --title "$title" \
+              --body "Rolling status of the scheduled live tier — one comment per run, success and failure both." \
+              | grep -oE '[0-9]+$')
+          fi
+          gh issue comment "$num" --body "$icon **$status** — $(date -u +'%Y-%m-%d %H:%M UTC') · [run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"

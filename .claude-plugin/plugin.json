@@ -1,0 +1,38 @@
+{
+  "name": "oracle-ai-dev",
+  "version": "0.6.0",
+  "description": "Guided zero-to-app development on Oracle AI Database 26ai Free: setup, converged data modeling (UMT), document/vector/RAG paths, and a measure-driven tuning loop — bundling Oracle SQLcl's MCP server.",
+  "author": { "name": "Rick Houlihan" },
+  "license": "UPL-1.0",
+  "homepage": "https://github.com/rhoulihan/oracle-ai-dev",
+  "keywords": ["oracle", "database", "26ai", "json", "vector", "mongodb-api", "data-modeling", "sqlcl", "mcp"],
+  "mcpServers": "./.mcp.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "nohup \"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-sqlcl.sh\" >/dev/null 2>&1 &"
+          }
+        ]
+      }
+    ]
+  },
+  "userConfig": {
+    "sqlcl_path": {
+      "type": "string",
+      "title": "SQLcl executable",
+      "description": "Optional. Path to SQLcl's bin/sql, or 'sql' if it is on PATH. Only the bundled MCP server needs it — leave the default and ask the agent to run scripts/install-sqlcl.sh if you don't have SQLcl; it installs it and prints the path.",
+      "required": false,
+      "default": "sql"
+    },
+    "tns_admin": {
+      "type": "string",
+      "title": "TNS_ADMIN directory",
+      "description": "Optional directory containing tnsnames.ora / cloud wallet files.",
+      "required": false,
+      "default": ""
+    }
+  }
+}

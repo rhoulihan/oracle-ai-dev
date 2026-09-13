@@ -1,0 +1,11 @@
+{
+  "entities": {
+    "Employee": {"table": "employee", "pk": "emp_id",
+                 "columns": {"name": "name", "managerId": "manager_id"}}
+  },
+  "relationships": [
+    {"from": "Employee", "to": "Employee", "from_key": "emp_id",
+     "to_key": "manager_id", "kind": "hierarchy"}
+  ],
+  "projections": {}
+}

@@ -1,0 +1,21 @@
+{
+  "entities": {
+    "Order": {"table": "orders", "pk": "order_id",
+              "columns": {"total": "total", "orderId": "order_id", "orderedAt": "ordered_at"}},
+    "OrderItem": {"table": "order_item", "pk": "order_item_id",
+                  "columns": {"quantity": "quantity", "unitPrice": "unit_price"}},
+    "Restaurant": {"table": "restaurant", "pk": "restaurant_id",
+                   "columns": {"name": "name"}},
+    "Customer": {"table": "customer", "pk": "customer_id",
+                 "columns": {"name": "name"}}
+  },
+  "relationships": [
+    {"from": "Order", "to": "OrderItem", "from_key": "order_id", "to_key": "order_id", "cardinality": "1:N"},
+    {"from": "Order", "to": "Restaurant", "from_key": "restaurant_id", "to_key": "restaurant_id", "cardinality": "N:1"},
+    {"from": "Order", "to": "Customer", "from_key": "customer_id", "to_key": "customer_id", "cardinality": "N:1"}
+  ],
+  "projections": {
+    "duality": {"Order": "order_dv"},
+    "document": {"Order": {"collection": "order_docs", "id_path": "$._id"}}
+  }
+}

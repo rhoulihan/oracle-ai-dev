@@ -1,0 +1,17 @@
+{
+  "description": "Persona acceptance evals: a developer prompt should route to the expected skill. The deterministic test checks each skill description is discriminative enough that the expected skill scores highest on keyword overlap. A gated real-CLI harness (documented in tests/test_persona_evals.py) exercises actual trigger behavior.",
+  "cases": [
+    {"prompt": "I want to build a recommendation app on Oracle, what do I need to set up", "expect": "oracle-ai-dev"},
+    {"prompt": "I want to migrate my existing PostgreSQL application to Oracle, recommend where to start", "expect": "oracle-ai-dev"},
+    {"prompt": "stand up and deploy an Oracle database in Docker for my application", "expect": "oracle-ai-setup"},
+    {"prompt": "connect my AI assistant to the Oracle database and configure the SQLcl MCP server", "expect": "sqlcl-mcp-setup"},
+    {"prompt": "help me design and review a data model schema before choosing tables or collections", "expect": "oracle-data-modeling"},
+    {"prompt": "store and query JSON documents with SQL using JSON_TABLE and indexing", "expect": "sql-json-dev"},
+    {"prompt": "serve one dataset to both relational and document consumers with a duality view", "expect": "json-duality-dev"},
+    {"prompt": "run my MongoDB application and mongosh against Oracle and migrate the workload", "expect": "mongodb-api-dev"},
+    {"prompt": "add vector search embeddings and semantic RAG retrieval to my app", "expect": "vector-rag-dev"},
+    {"prompt": "build an AI agent that uses Oracle as memory knowledge and tools", "expect": "ai-agent-dev"},
+    {"prompt": "convert this MongoDB aggregation pipeline query to SQL", "expect": "query-craft"},
+    {"prompt": "this query is slow and the plan regressed, analyze indexes and tune it", "expect": "query-tuning"}
+  ]
+}

@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+docs/DEMO-SCRIPT.md
+.claude/
+# internal working artifacts — never shipped with the plugin
+docs/research/
+docs/specs/
+docs/plans/
+docs/reviews/
+docs/upstream-issue-draft.md
+tasks/
+
+# tool-generated, never knowledge
+.playwright-mcp/
+${CLAUDE_PLUGIN_DATA}/

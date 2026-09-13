@@ -1,0 +1,27 @@
+Tuning the knob by changing the pattern mix (indexed measurements):
+
+Knob A — hold transactional reads, dial reporting+write load up:
+   report/write x   relational   document   winner
+              0.0       79,000     39,700   document
+              0.1       92,075     91,830   document
+             0.25      111,688    170,025   relational
+              0.4      131,300    248,220   relational
+              0.5      144,375    300,350   relational
+             0.75      177,062    430,675   relational
+              1.0      209,750    561,000   relational
+              2.0      340,500  1,082,300   relational
+
+Knob B — hold reporting+writes at 1.0x, dial transactional reads up:
+       txn-read x   relational   document   winner
+              0.2      146,550    529,240   relational
+              0.5      170,250    541,150   relational
+              1.0      209,750    561,000   relational
+              2.0      288,750    600,700   relational
+              3.0      367,750    640,400   relational
+              5.0      525,750    719,800   relational
+             10.0      920,750    918,300   document
+
+The converged model FLIPS document <-> relational as the mix changes — a
+read-dominated reservation workload wants document/duality; add enough
+reporting/KPI aggregation and write load and relational wins. The knob is the
+measured pattern mix, exactly as UMT predicts.

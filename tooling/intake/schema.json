@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/rhoulihan/oracle-ai-dev/tooling/intake/schema.json",
+  "title": "oracle-ai-dev intake answer set",
+  "description": "Shared requirements contract for the S0 advisor and S3 modeling skill. The deterministic recommender is a pure function of a document validated against this schema.",
+  "type": "object",
+  "required": ["workload", "entities", "access_patterns", "required_features", "deployment"],
+  "properties": {
+    "workload": { "enum": ["oltp", "analytics", "mixed", "search", "rag"] },
+    "entities": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "access_patterns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "returns", "frequency"],
+        "properties": {
+          "name": { "type": "string" },
+          "returns": {
+            "type": "array", "minItems": 1,
+            "items": { "type": "string", "description": "entity.property reference" }
+          },
+          "predicates": { "type": "array", "items": { "type": "string" } },
+          "frequency": { "type": "number", "description": "relative or per-period call rate" },
+          "cardinality": { "type": "string", "description": "e.g. 1:1, 1:N, N:1, N:M" },
+          "latency_budget_ms": { "type": "number" },
+          "write": { "enum": ["none", "low", "medium", "high"] },
+          "fields_touched": { "type": "number", "description": "how many of the aggregate's fields the read actually touches" },
+          "consistency_moment": { "type": "boolean", "description": "must every shape reflect the same commit point?" }
+        }
+      }
+    },
+    "scale": {
+      "type": "object",
+      "properties": {
+        "rows_estimate": { "type": "number" },
+        "doc_size_kb": { "type": "number" },
+        "doc_size_p99_kb": { "type": "number", "description": "the tail decides the inline-vs-LOB threshold" },
+        "indexes_per_collection": { "type": "number" },
+        "hot_set_pct": { "type": "number", "description": "fraction of data that is hot; shape criterion for memory-bound profiles" },
+        "sizing_basis": { "type": "string", "description": "compressed vs logical, TB vs TiB, replicas included" }
+      }
+    },
+    "existing_stack": { "type": "array", "items": { "type": "string" } },
+    "required_features": {
+      "type": "array",
+      "items": { "enum": ["vector", "mongo_api", "duality", "graph", "select_ai", "soda"] }
+    },
+    "deployment": { "enum": ["free", "adb", "ee"] },
+    "slas": { "type": "object" }
+  }
+}

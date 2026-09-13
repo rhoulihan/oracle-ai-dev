@@ -1,0 +1,11 @@
+Index-first result for the defined mix:
+  1. relational   weighted cost = 99,692
+  2. document     weighted cost = 189,120
+  CHOSEN: relational
+  dominant: get_reservation 55%, create_reservation 12%, count_by_status 10%
+
+  With indexes, document is competitive on point/filter reads (and WINS
+  passenger_history via the indexed path + embedded legs), but the KPI/reporting
+  aggregations (which document must full-scan) and the write amplification keep
+  the converged winner relational. Duality is the pragmatic answer: document-API
+  reads over the relational overlay, cheap writes, and SQL for the aggregations.

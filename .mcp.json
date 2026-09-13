@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sqlcl": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/sqlcl-mcp.sh",
+      "args": ["-mcp", "-R", "4"],
+      "env": {
+        "SQLCL_PATH": "${user_config.sqlcl_path}",
+        "CLAUDE_PLUGIN_DATA": "${CLAUDE_PLUGIN_DATA}",
+        "TNS_ADMIN": "${user_config.tns_admin}",
+        "JAVA_TOOL_OPTIONS": "-Dorg.jline.terminal.provider=dumb"
+      }
+    }
+  }
+}

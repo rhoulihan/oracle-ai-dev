@@ -1,0 +1,13 @@
+{
+  "entities": {
+    "Sensor": {"table": "sensors", "pk": "sensor_id", "columns": {"location": "location"}},
+    "Reading": {"table": "readings", "pk": "reading_id",
+                "columns": {"sensorId": "sensor_id", "ts": "ts", "val": "val"}}
+  },
+  "relationships": [
+    {"from": "Sensor", "to": "Reading", "from_key": "sensor_id", "to_key": "sensor_id", "cardinality": "1:N"}
+  ],
+  "projections": {
+    "document": {"Sensor": {"collection": "sensor_docs", "id_path": "$._id"}}
+  }
+}

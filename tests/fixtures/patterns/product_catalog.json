@@ -1,0 +1,8 @@
+{
+  "entities": {
+    "Product": {"table": "products", "pk": "product_id",
+                "columns": {"name": "name", "price": "price", "views": "views", "tags": "tags"}}
+  },
+  "relationships": [],
+  "projections": {"document": {"Product": {"collection": "product_docs", "id_path": "$._id"}}}
+}

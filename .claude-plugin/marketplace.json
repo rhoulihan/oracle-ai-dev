@@ -1,0 +1,13 @@
+{
+  "name": "oracle-ai-dev-marketplace",
+  "description": "Development marketplace for the oracle-ai-dev plugin.",
+  "owner": { "name": "Rick Houlihan" },
+  "plugins": [
+    {
+      "name": "oracle-ai-dev",
+      "source": "./",
+      "description": "Guided zero-to-app development on Oracle AI Database 26ai Free.",
+      "category": "development"
+    }
+  ]
+}

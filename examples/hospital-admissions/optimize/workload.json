@@ -1,0 +1,382 @@
+{
+  "model": {
+    "_source": "Hospital Admissions Data Model (DataBaseAnswers-style DBA schema) + access patterns from product-management business rules",
+    "entities": {
+      "Patient": {
+        "table": "patients",
+        "pk": "patient_id",
+        "columns": {
+          "outpatient_yn": "outpatient_yn",
+          "hospital_number": "hospital_number",
+          "nhs_number": "nhs_number",
+          "gender": "gender",
+          "date_of_birth": "date_of_birth",
+          "patient_first_name": "patient_first_name",
+          "patient_middle_name": "patient_middle_name",
+          "patient_last_name": "patient_last_name",
+          "height": "height",
+          "weight": "weight",
+          "next_of_kin": "next_of_kin",
+          "home_phone": "home_phone",
+          "work_phone": "work_phone",
+          "cell_mobile_phone": "cell_mobile_phone",
+          "other_patient_details": "other_patient_details"
+        }
+      },
+      "Address": {
+        "table": "addresses",
+        "pk": "address_id",
+        "columns": {
+          "line_1_number_building": "line_1_number_building",
+          "line_2_number_street": "line_2_number_street",
+          "line_3_area_locality": "line_3_area_locality",
+          "city": "city",
+          "zip_postcode": "zip_postcode",
+          "state_province_county": "state_province_county",
+          "country": "country"
+        }
+      },
+      "PatientAddress": {
+        "table": "patient_addresses",
+        "pk": ["patient_id", "address_id"],
+        "columns": {
+          "date_address_from": "date_address_from",
+          "date_address_to": "date_address_to"
+        }
+      },
+      "PaymentMethod": {
+        "table": "patient_payment_methods",
+        "pk": "patient_method_id",
+        "columns": {
+          "patient_id": "patient_id",
+          "payment_method_code": "payment_method_code",
+          "payment_method_details": "payment_method_details"
+        }
+      },
+      "RoomStay": {
+        "table": "patient_rooms",
+        "pk": "stay_id",
+        "column_types": {
+          "patient_id": "NUMBER",
+          "room_id": "VARCHAR2(20)",
+          "date_stay_from": "TIMESTAMP",
+          "date_stay_to": "TIMESTAMP"
+        },
+        "columns": {
+          "patient_id": "patient_id",
+          "room_id": "room_id",
+          "date_stay_from": "date_stay_from",
+          "date_stay_to": "date_stay_to"
+        }
+      },
+      "Bill": {
+        "table": "patient_bills",
+        "pk": "patient_bill_id",
+        "columns": {
+          "patient_id": "patient_id",
+          "date_bill_paid": "date_bill_paid",
+          "total_amount_due": "total_amount_due",
+          "other_bill_details": "other_bill_details"
+        }
+      },
+      "BillItem": {
+        "table": "patient_bill_items",
+        "pk": ["patient_bill_id", "item_seq_nr"],
+        "column_types": {
+          "patient_bill_id": "NUMBER",
+          "item_seq_nr": "NUMBER"
+        },
+        "columns": {
+          "patient_bill_id": "patient_bill_id",
+          "item_seq_nr": "item_seq_nr",
+          "quantity": "quantity",
+          "total_cost": "total_cost"
+        }
+      },
+      "Record": {
+        "table": "patient_records",
+        "pk": "patient_record_id",
+        "columns": {
+          "patient_id": "patient_id",
+          "billable_item_code": "billable_item_code",
+          "component_code": "component_code",
+          "updated_by_staff_id": "updated_by_staff_id",
+          "updated_date": "updated_date",
+          "admission_datetime": "admission_datetime",
+          "medical_condition": "medical_condition",
+          "patient_record_component_details": "patient_record_component_details"
+        }
+      },
+      "Component": {
+        "table": "record_components",
+        "pk": "component_code",
+        "pk_type": "VARCHAR2(20)",
+        "columns": {
+          "component_description": "component_description"
+        }
+      },
+      "Staff": {
+        "table": "staff",
+        "pk": "staff_id",
+        "columns": {
+          "staff_category_code": "staff_category_code",
+          "gender": "gender",
+          "staff_job_title": "staff_job_title",
+          "staff_first_name": "staff_first_name",
+          "staff_last_name": "staff_last_name",
+          "staff_qualifications": "staff_qualifications",
+          "staff_birth_date": "staff_birth_date"
+        }
+      },
+      "StaffAddress": {
+        "table": "staff_addresses",
+        "pk": ["staff_id", "address_id"],
+        "columns": {
+          "date_address_from": "date_address_from",
+          "date_address_to": "date_address_to"
+        }
+      }
+    },
+    "relationships": [
+      {"from": "Patient", "to": "PatientAddress", "from_key": "patient_id", "to_key": "patient_id", "cardinality": "1:N"},
+      {"from": "Address", "to": "PatientAddress", "from_key": "address_id", "to_key": "address_id", "cardinality": "1:N"},
+      {"from": "Patient", "to": "PaymentMethod", "from_key": "patient_id", "to_key": "patient_id", "cardinality": "1:N"},
+      {"from": "Patient", "to": "RoomStay", "from_key": "patient_id", "to_key": "patient_id", "cardinality": "1:N"},
+      {"from": "Patient", "to": "Bill", "from_key": "patient_id", "to_key": "patient_id", "cardinality": "1:N"},
+      {"from": "Bill", "to": "BillItem", "from_key": "patient_bill_id", "to_key": "patient_bill_id", "cardinality": "1:N"},
+      {"from": "Patient", "to": "Record", "from_key": "patient_id", "to_key": "patient_id", "cardinality": "1:N"},
+      {"from": "Component", "to": "Record", "from_key": "component_code", "to_key": "component_code", "cardinality": "1:N"},
+      {"from": "Staff", "to": "Record", "from_key": "staff_id", "to_key": "updated_by_staff_id", "cardinality": "1:N"},
+      {"from": "Staff", "to": "StaffAddress", "from_key": "staff_id", "to_key": "staff_id", "cardinality": "1:N"},
+      {"from": "Address", "to": "StaffAddress", "from_key": "address_id", "to_key": "address_id", "cardinality": "1:N"}
+    ],
+    "projections": {
+      "document": {
+        "Patient": {"collection": "patient_docs", "id_path": "$._id"},
+        "Record": {"collection": "record_docs", "id_path": "$._id"},
+        "Bill": {"collection": "bill_docs", "id_path": "$._id"},
+        "RoomStay": {"collection": "room_stay_docs", "id_path": "$._id"}
+      },
+      "single_table": {
+        "table": "converged_items",
+        "discriminator": "type",
+        "anchor": "Patient",
+        "types": {
+          "Patient": {"key": ["patient_id"]},
+          "Record": {"key": ["patient_id", "patient_record_id"]},
+          "RoomStay": {"key": ["patient_id", "stay_id"]},
+          "Bill": {"key": ["patient_id", "patient_bill_id"]},
+          "BillItem": {"key": ["patient_id", "patient_bill_id", "item_seq_nr"],
+                       "path": [{"from_table": "patient_bills", "to_table": "patient_bill_items", "from_key": "patient_bill_id", "to_key": "patient_bill_id"}]},
+          "PaymentMethod": {"key": ["patient_id", "patient_method_id"]},
+          "PatientAddress": {"key": ["patient_id", "address_id"]},
+          "Address": {"key": ["patient_id", "address_id"],
+                      "path": [{"from_table": "patient_addresses", "to_table": "addresses", "from_key": "address_id", "to_key": "address_id"}]},
+          "Staff": {"key": ["staff_id"]},
+          "StaffAddress": {"key": ["staff_id", "address_id"]},
+          "Component": {"key": ["component_code"]}
+        },
+        "indexes": [
+          {"name": "st_hospital_number_gx", "type": "Patient", "columns": ["hospital_number"], "sparse": true},
+          {"name": "st_census_cov_gx", "type": "RoomStay", "columns": ["date_stay_to", "patient_id", "room_id", "date_stay_from"], "sparse": false},
+          {"name": "st_bill_id_xt_gx", "type": "Bill", "columns": ["patient_bill_id"], "sparse": false},
+          {"name": "st_bill_open_cov_gx", "type": "Bill", "columns": ["date_bill_paid", "total_amount_due", "patient_bill_id"], "sparse": false},
+          {"name": "st_rec_staff_gx", "type": "Record", "columns": ["updated_by_staff_id"], "sparse": true},
+          {"name": "st_rec_component_gx", "type": "Record", "columns": ["component_code"], "sparse": true},
+          {"name": "st_rec_billable_cov_gx", "type": "Record", "columns": ["billable_item_code"], "sparse": false}
+        ]
+      }
+    }
+  },
+  "patterns": [
+    {
+      "name": "get_patient_snapshot", "category": "transactional", "kind": "read", "rate": 10000,
+      "query": {
+        "root": "Patient",
+        "returns": ["Patient.patient_first_name", "Patient.patient_last_name", "Patient.date_of_birth",
+                    "Patient.gender", "Patient.next_of_kin", "Patient.cell_mobile_phone",
+                    "Address.line_1_number_building", "Address.city", "Address.zip_postcode"],
+        "predicates": [{"ref": "Patient.patient_id", "op": "=", "value": 42}]
+      }
+    },
+    {
+      "name": "get_patient_chart", "category": "transactional", "kind": "read", "rate": 15000,
+      "query": {
+        "root": "Record",
+        "returns": ["Record.component_code", "Record.updated_date", "Record.medical_condition",
+                    "Record.patient_record_component_details"],
+        "predicates": [{"ref": "Record.patient_id", "op": "=", "value": 42}],
+        "order_by": [{"ref": "Record.updated_date", "dir": "DESC"}]
+      }
+    },
+    {
+      "name": "find_patient_by_number", "category": "transactional", "kind": "read", "rate": 2000,
+      "query": {
+        "root": "Patient",
+        "returns": ["Patient.patient_id", "Patient.patient_first_name", "Patient.patient_last_name",
+                    "Patient.hospital_number"],
+        "predicates": [{"ref": "Patient.hospital_number", "op": "=", "value": "H0000042"}]
+      }
+    },
+    {
+      "name": "get_room_history", "category": "operational", "kind": "read", "rate": 1000,
+      "query": {
+        "root": "Patient",
+        "returns": ["RoomStay.room_id", "RoomStay.date_stay_from", "RoomStay.date_stay_to"],
+        "predicates": [{"ref": "Patient.patient_id", "op": "=", "value": 42}]
+      }
+    },
+    {
+      "name": "ward_census", "category": "operational", "kind": "read", "rate": 500,
+      "query": {
+        "root": "RoomStay",
+        "returns": ["RoomStay.patient_id", "RoomStay.room_id", "RoomStay.date_stay_from"],
+        "predicates": [{"ref": "RoomStay.date_stay_to", "op": "IS NULL"}]
+      }
+    },
+    {
+      "name": "get_bill_with_items", "category": "operational", "kind": "read", "rate": 300,
+      "query": {
+        "root": "Bill",
+        "returns": ["Bill.total_amount_due", "Bill.date_bill_paid",
+                    "BillItem.item_seq_nr", "BillItem.quantity", "BillItem.total_cost"],
+        "predicates": [{"ref": "Bill.patient_bill_id", "op": "=", "value": 500}]
+      }
+    },
+    {
+      "name": "get_payment_methods", "category": "operational", "kind": "read", "rate": 200,
+      "query": {
+        "root": "Patient",
+        "returns": ["PaymentMethod.payment_method_code", "PaymentMethod.payment_method_details"],
+        "predicates": [{"ref": "Patient.patient_id", "op": "=", "value": 42}]
+      }
+    },
+    {
+      "name": "list_open_bills", "category": "reporting", "kind": "read", "rate": 24,
+      "query": {
+        "root": "Bill",
+        "returns": ["Bill.patient_bill_id", "Bill.patient_id", "Bill.total_amount_due"],
+        "predicates": [{"ref": "Bill.date_bill_paid", "op": "IS NULL"},
+                        {"ref": "Bill.total_amount_due", "op": ">", "value": 0}]
+      }
+    },
+    {
+      "name": "charge_summary", "category": "reporting", "kind": "read", "rate": 24,
+      "query": {
+        "root": "Record",
+        "group_by": ["Record.billable_item_code"],
+        "aggregates": [{"fn": "COUNT", "ref": "*", "name": "n"}]
+      }
+    },
+    {
+      "name": "records_by_staff", "category": "reporting", "kind": "read", "rate": 20,
+      "query": {
+        "root": "Record",
+        "returns": ["Record.patient_record_id", "Record.component_code", "Record.updated_date"],
+        "predicates": [{"ref": "Record.updated_by_staff_id", "op": "=", "value": 7}]
+      }
+    },
+    {
+      "name": "admission_history", "category": "reporting", "kind": "read", "rate": 100,
+      "query": {
+        "root": "Record",
+        "returns": ["Record.admission_datetime", "Record.medical_condition", "Record.updated_date"],
+        "predicates": [{"ref": "Record.patient_id", "op": "=", "value": 42},
+                        {"ref": "Record.component_code", "op": "=", "value": "ADM"}]
+      }
+    },
+    {
+      "name": "add_clinical_record", "category": "transactional", "kind": "write", "rate": 12000,
+      "query": {
+        "root": "Record",
+        "returns": ["Record.patient_record_id"],
+        "predicates": [{"ref": "Record.patient_record_id", "op": "=", "value": 9990001}]
+      },
+      "sql": {
+        "relational": "INSERT INTO patient_records (patient_record_id, patient_id, billable_item_code, component_code, updated_by_staff_id, updated_date, medical_condition, patient_record_component_details) VALUES (9990001, 42, 'BI07', 'NOTE', 7, SYSTIMESTAMP, 'stable', 'progress note')",
+        "sql_view": "INSERT INTO patient_records (patient_record_id, patient_id, billable_item_code, component_code, updated_by_staff_id, updated_date, medical_condition, patient_record_component_details) VALUES (9990001, 42, 'BI07', 'NOTE', 7, SYSTIMESTAMP, 'stable', 'progress note')",
+        "document": "INSERT INTO record_docs (data) VALUES (JSON('{\"_id\":9990001,\"patient_id\":42,\"billable_item_code\":\"BI07\",\"component_code\":\"NOTE\",\"updated_by_staff_id\":7,\"updated_date\":\"2026-07-15T12:00:00\",\"medical_condition\":\"stable\",\"patient_record_component_details\":\"progress note\"}'))",
+        "duality": "INSERT INTO patient_records_dv (data) VALUES (JSON('{\"_id\":9990001,\"patient_id\":42,\"billable_item_code\":\"BI07\",\"component_code\":\"NOTE\",\"updated_by_staff_id\":7,\"updated_date\":\"2026-07-15T12:00:00\",\"medical_condition\":\"stable\",\"patient_record_component_details\":\"progress note\"}'))",
+        "single_table": "INSERT INTO converged_items (type, patient_record_id, patient_id, billable_item_code, component_code, updated_by_staff_id, updated_date, medical_condition, patient_record_component_details) VALUES ('Record', 9990001, 42, 'BI07', 'NOTE', 7, SYSTIMESTAMP, 'stable', 'progress note')"
+      }
+    },
+    {
+      "name": "add_bill_item", "category": "transactional", "kind": "write", "rate": 8000,
+      "query": {
+        "root": "Bill",
+        "returns": ["Bill.patient_bill_id"],
+        "predicates": [{"ref": "Bill.patient_bill_id", "op": "=", "value": 500}]
+      },
+      "sql": {
+        "relational": "INSERT INTO patient_bill_items (patient_bill_id, item_seq_nr, quantity, total_cost) VALUES (500, 9001, 1, 125)",
+        "sql_view": "INSERT INTO patient_bill_items (patient_bill_id, item_seq_nr, quantity, total_cost) VALUES (500, 9001, 1, 125)",
+        "document": "UPDATE bill_docs SET data = JSON_TRANSFORM(data, APPEND '$.billitems' = JSON('{\"patient_bill_id\":500,\"item_seq_nr\":9001,\"quantity\":1,\"total_cost\":125}')) WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 500",
+        "duality": "UPDATE patient_bills_dv_billitem SET data = JSON_TRANSFORM(data, APPEND '$.billitems' = JSON('{\"patient_bill_id\":500,\"item_seq_nr\":9001,\"quantity\":1,\"total_cost\":125}')) WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 500",
+        "single_table": "INSERT INTO converged_items (type, patient_id, patient_bill_id, item_seq_nr, quantity, total_cost) VALUES ('BillItem', 500, 500, 9001, 1, 125)"
+      }
+    },
+    {
+      "name": "admit_patient", "category": "transactional", "kind": "write", "rate": 80,
+      "query": {
+        "root": "Patient",
+        "returns": ["Patient.patient_id"],
+        "predicates": [{"ref": "Patient.patient_id", "op": "=", "value": 43}]
+      },
+      "sql": {
+        "relational": "BEGIN INSERT INTO patient_records (patient_record_id, patient_id, component_code, updated_by_staff_id, updated_date, admission_datetime, medical_condition, patient_record_component_details) VALUES (9990002, 43, 'ADM', 7, SYSTIMESTAMP, SYSTIMESTAMP, 'admitted', 'ER admission'); INSERT INTO patient_rooms (stay_id, patient_id, room_id, date_stay_from, date_stay_to) VALUES (9990002, 43, 'RM101', SYSTIMESTAMP, NULL); INSERT INTO patient_bills (patient_bill_id, patient_id, date_bill_paid, total_amount_due, other_bill_details) VALUES (9990002, 43, NULL, 0, 'open'); END;",
+        "sql_view": "BEGIN INSERT INTO patient_records (patient_record_id, patient_id, component_code, updated_by_staff_id, updated_date, admission_datetime, medical_condition, patient_record_component_details) VALUES (9990002, 43, 'ADM', 7, SYSTIMESTAMP, SYSTIMESTAMP, 'admitted', 'ER admission'); INSERT INTO patient_rooms (stay_id, patient_id, room_id, date_stay_from, date_stay_to) VALUES (9990002, 43, 'RM101', SYSTIMESTAMP, NULL); INSERT INTO patient_bills (patient_bill_id, patient_id, date_bill_paid, total_amount_due, other_bill_details) VALUES (9990002, 43, NULL, 0, 'open'); END;",
+        "document": "BEGIN INSERT INTO record_docs (data) VALUES (JSON('{\"_id\":9990002,\"patient_id\":43,\"component_code\":\"ADM\",\"updated_by_staff_id\":7,\"updated_date\":\"2026-07-15T12:00:00\",\"admission_datetime\":\"2026-07-15T12:00:00\",\"medical_condition\":\"admitted\",\"patient_record_component_details\":\"ER admission\"}')); INSERT INTO room_stay_docs (data) VALUES (JSON('{\"_id\":9990002,\"patient_id\":43,\"room_id\":\"RM101\",\"date_stay_from\":\"2026-07-15T12:00:00\"}')); UPDATE patient_docs SET data = JSON_TRANSFORM(data, APPEND '$.roomstays' = JSON('{\"room_id\":\"RM101\",\"date_stay_from\":\"2026-07-15T12:00:00\"}')) WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 43; INSERT INTO bill_docs (data) VALUES (JSON('{\"_id\":9990002,\"patient_id\":43,\"total_amount_due\":0,\"billitems\":[]}')); END;",
+        "duality": "BEGIN INSERT INTO patient_records_dv (data) VALUES (JSON('{\"_id\":9990002,\"patient_id\":43,\"component_code\":\"ADM\",\"updated_by_staff_id\":7,\"updated_date\":\"2026-07-15T12:00:00\",\"admission_datetime\":\"2026-07-15T12:00:00\",\"medical_condition\":\"admitted\",\"patient_record_component_details\":\"ER admission\"}')); UPDATE patients_dv_roomstay SET data = JSON_TRANSFORM(data, APPEND '$.roomstays' = JSON('{\"stay_id\":9990002,\"room_id\":\"RM101\",\"date_stay_from\":\"2026-07-15T12:00:00\"}')) WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 43; INSERT INTO patient_bills_dv (data) VALUES (JSON('{\"_id\":9990002,\"patient_id\":43,\"total_amount_due\":0}')); END;",
+        "single_table": "BEGIN INSERT INTO converged_items (type, patient_record_id, patient_id, component_code, updated_by_staff_id, updated_date, admission_datetime, medical_condition, patient_record_component_details) VALUES ('Record', 9990002, 43, 'ADM', 7, SYSTIMESTAMP, SYSTIMESTAMP, 'admitted', 'ER admission'); INSERT INTO converged_items (type, stay_id, patient_id, room_id, date_stay_from) VALUES ('RoomStay', 9990002, 43, 'RM101', SYSTIMESTAMP); INSERT INTO converged_items (type, patient_id, patient_bill_id, total_amount_due) VALUES ('Bill', 43, 9990002, 0); END;"
+      }
+    },
+    {
+      "name": "settle_bill", "category": "transactional", "kind": "write", "rate": 100,
+      "query": {
+        "root": "Bill",
+        "returns": ["Bill.total_amount_due"],
+        "predicates": [{"ref": "Bill.patient_bill_id", "op": "=", "value": 501}]
+      },
+      "sql": {
+        "relational": "UPDATE patient_bills SET total_amount_due = 0, date_bill_paid = SYSTIMESTAMP WHERE patient_bill_id = 501",
+        "sql_view": "UPDATE patient_bills SET total_amount_due = 0, date_bill_paid = SYSTIMESTAMP WHERE patient_bill_id = 501",
+        "document": "UPDATE bill_docs SET data = JSON_TRANSFORM(data, SET '$.total_amount_due' = 0, SET '$.date_bill_paid' = '2026-07-15 12:00:00') WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 501",
+        "duality": "UPDATE patient_bills_dv SET data = JSON_TRANSFORM(data, SET '$.total_amount_due' = 0, SET '$.date_bill_paid' = '2026-07-15T12:00:00') WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 501",
+        "single_table": "UPDATE converged_items SET total_amount_due = 0, date_bill_paid = SYSTIMESTAMP WHERE type = 'Bill' AND patient_bill_id = 501"
+      }
+    }
+  ],
+  "seed": [
+    "hospital-seed.sql",
+    "hospital-docs-seed.sql"
+  ],
+  "scenarios": [
+    {
+      "name": "hospital admissions (estimated real mix)",
+      "note": "clinical chart reads + record/charge-capture writes dominate; billing/census operational; batch reporting",
+      "rates": {
+        "get_patient_chart": 15000, "get_patient_snapshot": 10000, "find_patient_by_number": 2000,
+        "get_room_history": 1000, "ward_census": 500, "get_bill_with_items": 300,
+        "get_payment_methods": 200, "list_open_bills": 24, "charge_summary": 24,
+        "records_by_staff": 20, "admission_history": 100,
+        "add_clinical_record": 12000, "add_bill_item": 8000, "admit_patient": 80, "settle_bill": 100
+      }
+    },
+    {
+      "name": "device-integrated charting (write surge)",
+      "note": "bedside devices push vitals as records — the write knob turned up",
+      "rates": {
+        "add_clinical_record": 40000, "add_bill_item": 8000,
+        "get_patient_chart": 10000, "get_patient_snapshot": 6000
+      }
+    },
+    {
+      "name": "revenue-cycle analytics",
+      "note": "reporting-dominant: aggregations and open-bill sweeps",
+      "rates": {
+        "charge_summary": 2000, "list_open_bills": 1500, "get_bill_with_items": 800,
+        "records_by_staff": 500
+      }
+    }
+  ]
+}

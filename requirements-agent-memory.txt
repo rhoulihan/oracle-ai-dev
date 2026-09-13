@@ -1,0 +1,8 @@
+# Optional — the Oracle agent-memory labs' own Python APIs, installed onto this stack.
+#   pip install -r requirements-agent-memory.txt
+# Background + schema: skills/ai-agent-dev/references/agent-memory.md
+oracleagentmemory                       # Oracle AI Agent Memory (users/agents, memories, threads; vector retrieval)
+langchain-oracledb                      # OracleVS, AsyncOracleSaver checkpointer, OracleSemanticCache, chat history
+llama-index-vector-stores-oracledb      # LlamaIndex Oracle vector store
+oracledb>=2.0                           # python-oracledb driver (thin mode; no client libraries)
+pymongo>=4.6                            # the MongoDB-compatible API path

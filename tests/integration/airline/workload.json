@@ -1,0 +1,502 @@
+{
+  "model": {
+    "_source": "Airline Reservations Data Model \u2014 Barry Williams, DataBaseAnswers.org (2008)",
+    "entities": {
+      "BookingAgent": {
+        "table": "booking_agents",
+        "pk": "agent_id",
+        "columns": {
+          "agent_name": "agent_name",
+          "agent_details": "agent_details"
+        }
+      },
+      "Passenger": {
+        "table": "passengers",
+        "pk": "passenger_id",
+        "columns": {
+          "first_name": "first_name",
+          "second_name": "second_name",
+          "last_name": "last_name",
+          "phone_number": "phone_number",
+          "email_address": "email_address",
+          "address_lines": "address_lines",
+          "city": "city",
+          "state_province_county": "state_province_county",
+          "country": "country",
+          "other_passenger_details": "other_passenger_details"
+        }
+      },
+      "ItineraryReservation": {
+        "table": "itinerary_reservations",
+        "pk": "reservation_id",
+        "columns": {
+          "agent_id": "agent_id",
+          "passenger_id": "passenger_id",
+          "reservation_status_code": "reservation_status_code",
+          "ticket_type_code": "ticket_type_code",
+          "travel_class_code": "travel_class_code",
+          "date_reservation_made": "date_reservation_made",
+          "number_in_party": "number_in_party"
+        }
+      },
+      "Payment": {
+        "table": "payments",
+        "pk": "payment_id",
+        "columns": {
+          "payment_status_code": "payment_status_code",
+          "payment_date": "payment_date",
+          "payment_amount": "payment_amount"
+        }
+      },
+      "ReservationPayment": {
+        "table": "reservation_payments",
+        "pk": [
+          "reservation_id",
+          "payment_id"
+        ],
+        "columns": {}
+      },
+      "Airport": {
+        "table": "airports",
+        "pk": "airport_code",
+        "pk_type": "VARCHAR2(10)",
+        "columns": {
+          "airport_name": "airport_name",
+          "airport_location": "airport_location",
+          "other_details": "other_details"
+        }
+      },
+      "FlightSchedule": {
+        "table": "flight_schedules",
+        "pk": "flight_number",
+        "pk_type": "VARCHAR2(20)",
+        "columns": {
+          "airline_code": "airline_code",
+          "usual_aircraft_type_code": "usual_aircraft_type_code",
+          "origin_airport_code": "origin_airport_code",
+          "destination_airport_code": "destination_airport_code",
+          "departure_date_time": "departure_date_time",
+          "arrival_date_time": "arrival_date_time"
+        }
+      },
+      "Leg": {
+        "table": "legs",
+        "pk": "leg_id",
+        "columns": {
+          "flight_number": "flight_number",
+          "origin_airport_code": "origin_airport_code",
+          "destination_airport_code": "destination_airport_code",
+          "actual_departure_time": "actual_departure_time",
+          "actual_arrival_time": "actual_arrival_time"
+        }
+      },
+      "ItineraryLeg": {
+        "table": "itinerary_legs",
+        "pk": [
+          "reservation_id",
+          "leg_id"
+        ],
+        "columns": {}
+      },
+      "RefCalendar": {
+        "table": "ref_calendar",
+        "pk": "day_date",
+        "pk_type": "DATE",
+        "columns": {
+          "day_number": "day_number",
+          "business_day_yn": "business_day_yn"
+        }
+      },
+      "FlightCost": {
+        "table": "flight_costs",
+        "pk": [
+          "flight_number",
+          "aircraft_type_code",
+          "valid_from_date"
+        ],
+        "column_types": {
+          "flight_number": "VARCHAR2(20)",
+          "aircraft_type_code": "VARCHAR2(20)",
+          "valid_from_date": "DATE",
+          "valid_to_date": "DATE"
+        },
+        "columns": {
+          "valid_to_date": "valid_to_date",
+          "flight_cost": "flight_cost"
+        }
+      }
+    },
+    "relationships": [
+      {
+        "from": "BookingAgent",
+        "to": "ItineraryReservation",
+        "from_key": "agent_id",
+        "to_key": "agent_id",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "Passenger",
+        "to": "ItineraryReservation",
+        "from_key": "passenger_id",
+        "to_key": "passenger_id",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "ItineraryReservation",
+        "to": "ReservationPayment",
+        "from_key": "reservation_id",
+        "to_key": "reservation_id",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "Payment",
+        "to": "ReservationPayment",
+        "from_key": "payment_id",
+        "to_key": "payment_id",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "ItineraryReservation",
+        "to": "ItineraryLeg",
+        "from_key": "reservation_id",
+        "to_key": "reservation_id",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "Leg",
+        "to": "ItineraryLeg",
+        "from_key": "leg_id",
+        "to_key": "leg_id",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "Airport",
+        "to": "FlightSchedule",
+        "from_key": "airport_code",
+        "to_key": "origin_airport_code",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "FlightSchedule",
+        "to": "Leg",
+        "from_key": "flight_number",
+        "to_key": "flight_number",
+        "cardinality": "1:N"
+      },
+      {
+        "from": "FlightSchedule",
+        "to": "FlightCost",
+        "from_key": "flight_number",
+        "to_key": "flight_number",
+        "cardinality": "1:N"
+      }
+    ],
+    "projections": {
+      "document": {
+        "ItineraryReservation": {
+          "collection": "reservation_docs",
+          "id_path": "$._id"
+        }
+      }
+    }
+  },
+  "patterns": [
+    {
+      "name": "get_reservation",
+      "category": "transactional",
+      "kind": "read",
+      "rate": 5000,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_status_code",
+          "ItineraryReservation.ticket_type_code",
+          "ItineraryReservation.travel_class_code"
+        ],
+        "predicates": [
+          {
+            "ref": "ItineraryReservation.reservation_id",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_itinerary",
+      "category": "transactional",
+      "kind": "read",
+      "rate": 4000,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_status_code",
+          "ItineraryReservation.travel_class_code",
+          "Leg.flight_number",
+          "Leg.actual_departure_time",
+          "Payment.payment_amount"
+        ],
+        "predicates": [
+          {
+            "ref": "ItineraryReservation.reservation_id",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "passenger_reservations",
+      "category": "transactional",
+      "kind": "read",
+      "rate": 1500,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_id",
+          "ItineraryReservation.reservation_status_code"
+        ],
+        "predicates": [
+          {
+            "ref": "ItineraryReservation.passenger_id",
+            "op": "=",
+            "value": 7
+          }
+        ],
+        "order_by": [
+          {
+            "ref": "ItineraryReservation.reservation_id",
+            "dir": "DESC"
+          }
+        ]
+      }
+    },
+    {
+      "name": "update_status",
+      "category": "transactional",
+      "kind": "write",
+      "rate": 120,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_status_code"
+        ],
+        "predicates": [
+          {
+            "ref": "ItineraryReservation.reservation_id",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      },
+      "sql": {
+        "relational": "UPDATE itinerary_reservations SET reservation_status_code='CLOSED' WHERE reservation_id=1",
+        "document": "UPDATE reservation_docs SET data=JSON_TRANSFORM(data, SET '$.reservation_status_code'='CLOSED') WHERE JSON_VALUE(data,'$._id' RETURNING NUMBER)=1",
+        "sql_view": "UPDATE itinerary_reservations SET reservation_status_code='CLOSED' WHERE reservation_id=1",
+        "duality": "UPDATE itinerary_reservations_dv SET data = JSON_TRANSFORM(data, SET '$.reservation_status_code' = 'CLOSED') WHERE JSON_VALUE(data, '$._id' RETURNING NUMBER) = 1",
+        "single_table": "UPDATE converged_items SET reservation_status_code = 'CLOSED' WHERE type = 'ItineraryReservation' AND reservation_id = 1"
+      }
+    },
+    {
+      "name": "create_reservation",
+      "category": "transactional",
+      "kind": "write",
+      "rate": 60,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_id"
+        ],
+        "predicates": [
+          {
+            "ref": "ItineraryReservation.reservation_id",
+            "op": "=",
+            "value": 1
+          }
+        ]
+      },
+      "sql": {
+        "relational": "BEGIN INSERT INTO itinerary_reservations (reservation_id, passenger_id, agent_id, reservation_status_code, travel_class_code, number_in_party) VALUES (999999, 7, 1, 'OPEN', 'Y', 2); INSERT INTO itinerary_legs (reservation_id, leg_id) VALUES (999999, 1); INSERT INTO itinerary_legs (reservation_id, leg_id) VALUES (999999, 2); INSERT INTO reservation_payments (reservation_id, payment_id) VALUES (999999, 1); END;",
+        "sql_view": "BEGIN INSERT INTO itinerary_reservations (reservation_id, passenger_id, agent_id, reservation_status_code, travel_class_code, number_in_party) VALUES (999999, 7, 1, 'OPEN', 'Y', 2); INSERT INTO itinerary_legs (reservation_id, leg_id) VALUES (999999, 1); INSERT INTO itinerary_legs (reservation_id, leg_id) VALUES (999999, 2); INSERT INTO reservation_payments (reservation_id, payment_id) VALUES (999999, 1); END;",
+        "document": "INSERT INTO reservation_docs (data) VALUES (JSON('{\"_id\":999999,\"passenger_id\":7,\"agent_id\":1,\"reservation_status_code\":\"OPEN\",\"ticket_type_code\":\"E\",\"travel_class_code\":\"Y\",\"number_in_party\":2,\"legs\":[{\"leg_id\":1,\"flight_number\":\"FL00001\",\"origin_airport_code\":\"AP01\",\"destination_airport_code\":\"AP02\"},{\"leg_id\":2,\"flight_number\":\"FL00002\",\"origin_airport_code\":\"AP02\",\"destination_airport_code\":\"AP01\"}],\"payments\":[{\"payment_id\":1,\"payment_status_code\":\"PAID\",\"payment_amount\":250}]}'))",
+        "duality": "INSERT INTO itinerary_reservations_dv_leg_payment (data) VALUES (JSON('{\"_id\":999999,\"passenger_id\":7,\"agent_id\":1,\"reservation_status_code\":\"OPEN\",\"ticket_type_code\":\"E\",\"travel_class_code\":\"Y\",\"number_in_party\":2,\"itinerarylegs\":[{\"reservation_id\":999999,\"leg_id\":1},{\"reservation_id\":999999,\"leg_id\":2}],\"reservationpayments\":[{\"reservation_id\":999999,\"payment_id\":1}]}'))",
+        "single_table": "BEGIN INSERT INTO converged_items (type, reservation_id, passenger_id, agent_id, reservation_status_code, travel_class_code, number_in_party) VALUES ('ItineraryReservation', 999999, 7, 1, 'OPEN', 'Y', 2); INSERT INTO converged_items (type, reservation_id, leg_id, flight_number) VALUES ('Leg', 999999, 1, 'FL00001'); INSERT INTO converged_items (type, reservation_id, leg_id, flight_number) VALUES ('Leg', 999999, 2, 'FL00002'); INSERT INTO converged_items (type, reservation_id, payment_id, payment_amount) VALUES ('Payment', 999999, 1, 250); END;"
+      }
+    },
+    {
+      "name": "open_for_agent",
+      "category": "operational",
+      "kind": "read",
+      "rate": 300,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_id",
+          "ItineraryReservation.reservation_status_code"
+        ],
+        "predicates": [
+          {
+            "ref": "ItineraryReservation.agent_id",
+            "op": "=",
+            "value": 3
+          },
+          {
+            "ref": "ItineraryReservation.reservation_status_code",
+            "op": "=",
+            "value": "CONFIRMED"
+          }
+        ]
+      }
+    },
+    {
+      "name": "count_by_status",
+      "category": "operational",
+      "kind": "read",
+      "rate": 120,
+      "query": {
+        "root": "ItineraryReservation",
+        "group_by": [
+          "ItineraryReservation.reservation_status_code"
+        ],
+        "aggregates": [
+          {
+            "fn": "COUNT",
+            "ref": "*",
+            "name": "n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "passenger_history",
+      "category": "reporting",
+      "kind": "read",
+      "rate": 40,
+      "query": {
+        "root": "ItineraryReservation",
+        "returns": [
+          "ItineraryReservation.reservation_id",
+          "ItineraryReservation.reservation_status_code",
+          "Passenger.last_name"
+        ],
+        "predicates": [
+          {
+            "ref": "Passenger.passenger_id",
+            "op": "=",
+            "value": 7
+          }
+        ]
+      }
+    },
+    {
+      "name": "revenue_by_class",
+      "category": "reporting",
+      "kind": "read",
+      "rate": 5,
+      "query": {
+        "root": "ItineraryReservation",
+        "group_by": [
+          "ItineraryReservation.travel_class_code"
+        ],
+        "aggregates": [
+          {
+            "fn": "SUM",
+            "ref": "ItineraryReservation.number_in_party",
+            "name": "party"
+          }
+        ]
+      }
+    },
+    {
+      "name": "flight_load",
+      "category": "reporting",
+      "kind": "read",
+      "rate": 3,
+      "query": {
+        "root": "ItineraryReservation",
+        "group_by": [
+          "ItineraryReservation.ticket_type_code"
+        ],
+        "aggregates": [
+          {
+            "fn": "COUNT",
+            "ref": "*",
+            "name": "n"
+          },
+          {
+            "fn": "SUM",
+            "ref": "ItineraryReservation.number_in_party",
+            "name": "party"
+          }
+        ]
+      }
+    }
+  ],
+  "seed": [
+    "airline-seed.sql",
+    "reservation-docs-seed.sql"
+  ],
+  "scenarios": [
+    {
+      "name": "reservation system (real mix)",
+      "note": "a booking is written once and read ~150x over its life",
+      "rates": {
+        "get_reservation": 5000,
+        "get_itinerary": 4000,
+        "passenger_reservations": 1500,
+        "open_for_agent": 300,
+        "count_by_status": 120,
+        "passenger_history": 40,
+        "revenue_by_class": 5,
+        "flight_load": 3,
+        "update_status": 120,
+        "create_reservation": 60
+      }
+    },
+    {
+      "name": "mobile / check-in (the itinerary IS the app)",
+      "note": "every session opens the whole booking; embedding is simply correct here",
+      "rates": {
+        "get_itinerary": 6000,
+        "get_reservation": 1500,
+        "update_status": 200
+      }
+    },
+    {
+      "name": "full-service airline (bookings AND the dashboard)",
+      "note": "opens bookings (relational pays for joins) and aggregates (document full-scans)",
+      "rates": {
+        "get_reservation": 3000,
+        "get_itinerary": 4000,
+        "passenger_reservations": 1500,
+        "open_for_agent": 500,
+        "count_by_status": 800,
+        "revenue_by_class": 300,
+        "flight_load": 300,
+        "passenger_history": 100,
+        "update_status": 200,
+        "create_reservation": 100
+      }
+    },
+    {
+      "name": "analytics / revenue management (KPIs)",
+      "note": "a JSON collection has no aggregate-friendly access path \u2014 it full-scans to group",
+      "rates": {
+        "count_by_status": 3000,
+        "revenue_by_class": 1500,
+        "flight_load": 1500,
+        "open_for_agent": 500
+      }
+    },
+    {
+      "name": "booking engine (write-heavy)",
+      "note": "the hypothetical the original fixture was accidentally measuring",
+      "rates": {
+        "create_reservation": 3000,
+        "update_status": 2500,
+        "get_reservation": 1200,
+        "get_itinerary": 400
+      }
+    }
+  ]
+}

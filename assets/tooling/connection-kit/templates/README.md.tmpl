@@ -1,0 +1,29 @@
+# Access kit — Oracle AI Database 26ai
+
+Generated for your running stack. Connection details:
+
+| Setting | Value |
+|---|---|
+| Host | `{{HOST}}` |
+| SQL port (1521) | `{{PORT}}` |
+| Service name | `{{SERVICE}}` |
+| Database user | `{{USER}}` |
+| MongoDB API port (27017) | `{{MONGO_PORT}}` |
+| ORDS REST base | `{{ORDS_URL}}` |
+
+> Passwords are placeholders (`{{PASSWORD}}`) — set your own; never commit secrets.
+
+## APIs and how to reach them
+- **SQL** (port `{{PORT}}`, service `{{SERVICE}}`) — python-oracledb, node-oracledb,
+  JDBC, ODP.NET, godror, SQLcl. See `python-oracledb.py`, `jdbc-java.java`, ….
+- **MongoDB-compatible API** (port `{{MONGO_PORT}}`) — mongosh, PyMongo, the Node
+  mongodb driver. TLS on by default. See `mongosh.sh`, `pymongo.py`, ….
+- **REST / SODA for REST / GraphQL** (`{{ORDS_URL}}`) — any HTTP client. See
+  `ords-rest.sh`.
+
+## Files in this kit
+Each file is a ready-to-run connection snippet for one language/platform, with the
+values above already filled in.
+
+Full API details: the `oracle-ai-setup` skill's
+[access matrix](../../../skills/oracle-ai-setup/references/access-matrix.md).

@@ -1,0 +1,9 @@
+{
+  "entities": {
+    "Event": {"table": "events", "pk": "event_id",
+              "columns": {"type": "type", "schema_version": "schema_version",
+                          "is_outlier": "is_outlier", "versions": "versions", "payload": "payload"}}
+  },
+  "relationships": [],
+  "projections": {"document": {"Event": {"collection": "event_docs", "id_path": "$._id"}}}
+}

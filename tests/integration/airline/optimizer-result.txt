@@ -1,0 +1,120 @@
+Oracle AI Database 26ai Free — airline capstone, production-volume run
+Run: 2026-07-14 · seed 300,000 reservations / 200,000 passengers / 1,200,000 itinerary-leg rows /
+450,000 payment rows / 80,000 legs / 20,000 flights · --trials 30 --fresh · post-review engine
+(zero-effect write gate, scoped row-pairing equivalence, unmeasured-cell exclusion, consumed noise floor).
+Host: WSL2 Docker, Free-edition caps (2 CPU / 2 GB SGA+PGA). Prior 30k-seed result superseded — see RESULTS.md.
+
+[optimize] candidate designs: document, single_table, duality, relational
+[optimize] dropping every object (a re-fill leaves the old high-water mark behind)
+[optimize] deploying document storage (+ access-pattern-derived indexes)
+[optimize] deploying duality storage (+ access-pattern-derived indexes)
+[optimize] deploying relational storage (+ access-pattern-derived indexes)
+[optimize] deploying single_table storage (+ access-pattern-derived indexes)
+[optimize] seeding representative volume
+[optimize] validating: every design must return the same answer
+[optimize]   get_reservation: all designs agree
+[optimize]   get_itinerary: all designs agree
+[optimize]   passenger_reservations: all designs agree
+[optimize]   open_for_agent: all designs agree
+[optimize]   count_by_status: all designs agree
+[optimize]   passenger_history: all designs agree
+[optimize]   revenue_by_class: all designs agree
+[optimize]   flight_load: all designs agree
+[optimize] measuring 10 patterns x 4 designs on the live DB
+
+FULL COST MATRIX — every pattern measured against every candidate design
+  (unit: median elapsed microseconds; reads AND writes are first-class rows)
+
+  pattern                 category      kind    rate/hr     document      duality   relational single_table
+  ---------------------------------------------------------------------------------------------------------
+  get_reservation         transactional read      5,000          277          286          246          260
+  get_itinerary           transactional read      4,000          294          362          335          503
+  passenger_reservations  transactional read      1,500          302          284          467          500
+  update_status           transactional write       120        1,209        1,195        1,087        1,071
+  create_reservation      transactional write        60        1,165        1,245        1,148        1,244
+  open_for_agent          operational   read        300        1,345        1,341        1,481          838
+  count_by_status         operational   read        120        1,646        1,612        1,585        1,499
+  passenger_history       reporting     read         40          308          307          495          492
+  revenue_by_class        reporting     read          5        1,947        2,319        2,392        2,230
+  flight_load             reporting     read          3        1,900        2,326        2,343        2,186
+
+ACCESS PATHS — how each design actually served each pattern
+  (method - logical reads; the plan is the WHY behind every cell above)
+
+  pattern                             document             duality          relational        single_table
+  --------------------------------------------------------------------------------------------------------
+  get_reservation                  IDX RANGE 3        IDX UNIQUE 3        IDX UNIQUE 3         IDX RANGE 3
+  get_itinerary                    IDX RANGE 3       IDX UNIQUE 21       IDX UNIQUE 21         IDX RANGE 8
+  passenger_reservations           IDX RANGE 4         IDX RANGE 4         IDX RANGE 4         IDX RANGE 4
+  open_for_agent                 IDX RANGE 153       IDX RANGE 248        IDX RANGE 74       IDX RANGE 149
+  count_by_status                  IDX FFS 198         IDX FFS 226         IDX FFS 226       FULL SCAN 484
+  passenger_history                IDX RANGE 4       IDX UNIQUE 10        IDX UNIQUE 8         IDX RANGE 7
+  revenue_by_class                 IDX FFS 198         IDX FFS 210         IDX FFS 210       FULL SCAN 484
+  flight_load                      IDX FFS 198         IDX FFS 210         IDX FFS 210       FULL SCAN 484
+
+  Every filtered read uses an index.
+
+!! NOISY CELLS — the trials WITHIN these cells disagree by more than
+!! the 10% cv trust gate, so the cells themselves cannot be
+!! trusted. Re-run with more trials on a quieter host before believing
+!! any margin built on them:
+   get_reservation / document: cv=12%
+   get_reservation / single_table: cv=14%
+   get_reservation / duality: cv=12%
+   get_reservation / relational: cv=11%
+   get_itinerary / duality: cv=19%
+   get_itinerary / relational: cv=13%
+   passenger_reservations / single_table: cv=11%
+   passenger_reservations / relational: cv=18%
+   open_for_agent / single_table: cv=10%
+   count_by_status / single_table: cv=11%
+   passenger_history / duality: cv=10%
+   passenger_history / relational: cv=11%
+   flight_load / relational: cv=12%
+
+ANSWER VALIDATION: every design returns the same answer for every pattern.
+
+DECISION (rate-weighted over the whole matrix)
+  1. document       total weighted cost =       3,856,298
+  2. relational     total weighted cost =       4,141,200
+  3. duality        total weighted cost =       4,153,010
+  4. single_table   total weighted cost =       4,729,893
+  CHOSEN: document
+  driven by: get_reservation (read), get_itinerary (read), passenger_reservations (read)
+  margin over 2nd: 7.4%
+  noise floor: 17.7% — raised above the default 5% by the measured cv of the deciding cells
+
+  !! TOO CLOSE TO CALL — document leads by 7.4%, inside the
+  !! ~18% noise floor of this run's timings. These are TIED: document, relational, duality.
+  !! Do not rebuild a schema on this. Break the tie on what the matrix cannot
+  !! measure — operability, the shape the app already speaks, blast radius of
+  !! change — or re-run with more trials and production-representative volume.
+
+SHIFT THE MIX — the same measurements, re-weighted
+  (a cell is a property of the schema, not of how often the pattern runs,
+   so every scenario below is free: one measurement pass, many workloads)
+
+  scenario                                           read:write     document      duality   relational single_table  winner         margin
+  ----------------------------------------------------------------------------------------------------------------------------------------
+  reservation system (real mix)                            61:1    3,856,298    4,153,010    4,141,200    4,729,893  document         7.4%
+  mobile / check-in (the itinerary IS the app)             38:1    2,420,130    2,843,639    2,595,896    3,619,265  document         7.3%
+  full-service airline (bookings AND the dashboard)        35:1    5,991,703    6,483,152    6,588,182    6,869,871  document         8.2%
+  analytics / revenue management (KPIs)               read-only   11,381,778   12,473,967   12,598,852   11,541,244  document         1.4%
+  booking engine (write-heavy)                              1:3    6,965,861    7,211,706    6,590,082    6,920,298  relational       5.0%
+
+  A scenario marked SEPARATES beats the field by more than the noise floor —
+  there the design is a decision. Where nothing separates, the designs are tied
+  and the mix simply does not care which one you pick.
+
+WHERE THE WINNER FLIPS (shrink everything but the dominant read)
+
+    scale       document        duality     relational   single_table   winner
+  ----------------------------------------------------------------------------
+        1      3,856,298      4,153,010      4,141,200      4,729,893   document
+      0.3      2,125,602      2,248,602      2,102,188      2,327,631   relational
+      0.1      1,631,117      1,704,486      1,519,613      1,641,270   relational
+     0.03      1,458,048      1,514,045      1,315,711      1,401,044   relational
+     0.01      1,408,599      1,459,633      1,257,454      1,332,408   relational
+        0      1,383,875      1,432,428      1,228,325      1,298,090   relational
+
+winning schema (document) written to <out-dir>/schema.document.sql

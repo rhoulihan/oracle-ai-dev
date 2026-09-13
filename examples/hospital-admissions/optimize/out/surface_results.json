@@ -1,0 +1,74 @@
+{
+  "get_patient_snapshot": {
+    "kind": "read",
+    "equivalent": "YES",
+    "median_us": {
+      "sql/relational": 484.26404828205705,
+      "sql/document": 482.2440096177161,
+      "mongo/document": 1178.4849921241403
+    }
+  },
+  "get_patient_chart": {
+    "kind": "read",
+    "equivalent": "YES",
+    "median_us": {
+      "sql/relational": 500.2600373700261,
+      "sql/document": 529.9809854477644,
+      "mongo/document": 1252.521004062146
+    }
+  },
+  "find_patient_by_number": {
+    "kind": "read",
+    "equivalent": "YES",
+    "median_us": {
+      "sql/relational": 252.98900436609983,
+      "sql/document": 258.9050563983619,
+      "mongo/document": 1101.4200281351805
+    }
+  },
+  "get_room_history": {
+    "kind": "read",
+    "equivalent": "YES",
+    "median_us": {
+      "sql/relational": 485.4205180890858,
+      "sql/document": 498.9249864593148,
+      "mongo/document": 1056.4764961600304
+    }
+  },
+  "ward_census": {
+    "kind": "read",
+    "equivalent": "YES",
+    "median_us": {
+      "sql/relational": 977.7150116860867,
+      "sql/document": 4123.746010009199,
+      "mongo/document": 8556.905493605882
+    }
+  },
+  "get_bill_with_items": {
+    "kind": "read",
+    "equivalent": "YES",
+    "median_us": {
+      "sql/relational": 499.6999632567167,
+      "sql/document": 537.3950116336346,
+      "mongo/document": 1095.0150899589062
+    }
+  },
+  "add_clinical_record": {
+    "kind": "write",
+    "equivalent": "-",
+    "median_us": {
+      "sql/relational": 1054.9704893492162,
+      "sql/document": 1161.5065159276128,
+      "mongo/document": 1854.729955084622
+    }
+  },
+  "add_bill_item": {
+    "kind": "write",
+    "equivalent": "-",
+    "median_us": {
+      "sql/relational": 1044.6655214764178,
+      "sql/document": 1225.6400077603757,
+      "mongo/document": 3371.168451849371
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "oracle-ai-dev-marketplace",
+  "plugins": [
+    {
+      "name": "oracle-ai-dev",
+      "source": { "source": "local", "path": "./" },
+      "description": "Guided zero-to-app development on Oracle AI Database 26ai Free."
+    }
+  ]
+}

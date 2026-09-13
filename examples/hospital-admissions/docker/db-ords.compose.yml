@@ -1,0 +1,42 @@
+# Copyright (c) 2026 Oracle and/or its affiliates.
+# Profile: db+ords — adds ORDS (MongoDB API on 27017, REST, GraphQL).
+services:
+  db:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-ai-dev-db
+    ports: ["${DB_HOST_PORT:-1521}:1521"]
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD:-devpassword}
+    volumes:
+      - oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/checkDBStatus.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 300s
+  ords:
+    image: container-registry.oracle.com/database/ords:latest
+    container_name: oracle-ai-dev-ords
+    depends_on:
+      db:
+        condition: service_healthy
+    ports: ["${ORDS_HTTP_PORT:-8080}:8080", "${MONGO_PORT:-27017}:27017"]
+    environment:
+      DBHOST: db
+      DBPORT: "1521"
+      DBSERVICENAME: FREEPDB1
+      ORACLE_PWD: ${ORACLE_PWD:-devpassword}
+    volumes:
+      # ORDS installs itself into the DATABASE (persisted in `oradata`) but writes its
+      # CONFIG to the container filesystem. Leave that ephemeral and the stack works
+      # exactly ONCE: on the second `up` the database reports "already installed" while
+      # the config directory is empty, and ORDS refuses to start —
+      #   ERROR: The ORDS config directory /etc/ords/config is empty
+      # No Mongo API and no REST on every restart after the first, which is precisely the
+      # shape of a demo (warm it in pre-flight, bring it up again on stage) and of any
+      # developer who stops and starts their environment.
+      - ordsconfig:/etc/ords/config
+volumes:
+  oradata:
+  ordsconfig:
